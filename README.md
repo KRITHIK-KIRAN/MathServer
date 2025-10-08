@@ -34,115 +34,102 @@ Publish the website in the given URL.
 ## PROGRAM :
 ```
 index.html
-<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>Lamp Filament Power Calculator</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background-color: darkblue;
-    }
-    .container {
-      max-width: 400px;
-      margin: auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h2 {
-      text-align: center;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-    }
-    input[type="number"] {
-      width: 100%;
-      padding: 8px;
-      margin-top: 5px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 20px;
-      width: 100%;
-      padding: 10px;
-      background-color: #007BFF;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-      text-align: center;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h2>Filament Power Calculator</h2>
-    <label for="intensity">Intensity (I in Amperes):</label>
-    <input type="number" id="intensity" step="any" required>
+    <head>
+        <title>BMI Calculator</title>
+        <style>
+        body{
+          background-color: rgba(79, 5, 108, 0.745);
+          border-top: 10;
+        }
+        .m{
+          background-color: rgb(0, 81, 255);
+          border-style: inset;
+          margin-top: 100px;
+          margin-left: 400px;
+          margin-right: 400px;
+          
+        }
+        *{
+          color: rgb(0, 0, 0);
+        }
+            .main{
+                font-size: 250%;
+                text-align: center;
+                text-decoration:underline;
 
-    <label for="resistance">Resistance (R in Ohms):</label>
-    <input type="number" id="resistance" step="any" required>
+                background-color: rgb(200, 0, 0);
+                 margin-left: 50px;
+                  margin-right: 50px;
+                  padding: 5px;
+                  
+                  
+            }
+            .a{
+                font-size: 150%;
+                text-align: center;
+                background-color: rgb(5, 5, 126);
+                 margin-left: 50px;
+                  margin-right: 50px;
+                
+                 
+            }
+            form{
+              text-align: center;
+              background-color: rgb(24, 84, 54);
+               margin-left: 50px;
+               margin-right: 50px;
+             padding: 50px;
+            }
+           
+        </style>
+    </head>
+    <body>
 
-    <button onclick="calculatePower()">Calculate Power</button>
-
-    <div id="result"></div>
-  </div>
-
-  <script>
-    function calculatePower() {
-      const I = parseFloat(document.getElementById('intensity').value);
-      const R = parseFloat(document.getElementById('resistance').value);
-
-      if (isNaN(I) || isNaN(R)) {
-        document.getElementById('result').textContent = "Please enter valid numbers for both fields.";
-        return;
-      }
-
-      const P = I * I * R;
-      document.getElementById('result').textContent = `Power (P) = ${P.toFixed(2)} Watts`;
-    }
-  </script>
-</body>
+       <div class="m">
+        <div class="main" style="color: rgb(222, 222, 222);">BMI Calculator</div>
+        <div class="a">
+      <p> Krithik kiran.S 25011340</p></div>
+        <form method="post">
+          {% csrf_token %}
+           
+           
+            <label>Weight(kg)=</label>
+            <input type="text" name="weight" value="{{w}}"><br><br>
+             <label>Height(cm)=</label>
+            <input type="text" name="height" value="{{h}}"><br><br>
+            <button type="submit">Calculate</button><br><br>
+            <label>BMI=</label>
+            <input type="text" name="bmi" value="{{bmi}}">
+        </div>
+        </form>
+        
+        
+    </body>
 </html>
+
 
 views.py
 
 from django.shortcuts import render
-
-def calculate_power(request):
-    if request.method == 'POST':
-        try:
-            intensity = float(request.POST.get('intensity'))
-            resistance = float(request.POST.get('resistance'))
-            power = intensity ** 2 * resistance
-
-            # Print to terminal
-            print("⚡ Received POST request")
-            print(f"Intensity (I): {intensity} A")
-            print(f"Resistance (R): {resistance} Ω")
-            print(f"Calculated Power (P): {power:.2f} Watts")
-
-            return render(request, 'mathapp/index.html', {
-                'result': f'Power (P) = {power:.2f} Watts',
-                'intensity': intensity,
-                'resistance': resistance
-            })
-        except (TypeError, ValueError):
-            print("❌ Invalid input received")
-            return render(request, 'mathapp/index.html', {
-                'result': 'Please enter valid numbers.'
-            })
-    else:
-        return render(request, 'mathapp/index.html')
+def calculate_bmi(request):
+    context={}
+    context['bmi']="0"
+    context['w']="0"
+    context['h']="0"
+    if(request.method=='POST'):
+       w= float(request.POST.get('weight','0'))
+       h=float(request.POST.get('height','0'))
+       print('request=',request)
+       
+       print('Weight=',w)
+       print('Height=',h)
+       bmi=w/((h/100)**2)
+       context['bmi']=bmi
+       context['w']=w
+       context['h']=h
+       print('BMI=',bmi)
+    return render(request,'mathapp/index.html',context)
 
 urls.py
 
@@ -152,16 +139,16 @@ from mathapp import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.calculate_power, name='calculate-power'),
+    path('bmi/',views.calculate_bmi,name="bmi"),
+    path('',views.calculate_bmi,name="bmicalculator")
 ]
-
 ```
 
 ## SERVER SIDE PROCESSING:
-![alt text](<Screenshot (5).png>)
+![alt text](<Screenshot (17).png>)
 
 ## HOMEPAGE:
-![alt text](<Screenshot (4).png>)
+![alt text](<Screenshot (16).png>)
 
 ## RESULT:
 The program for performing server side processing is completed successfully.
